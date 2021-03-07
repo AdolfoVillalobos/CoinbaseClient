@@ -23,17 +23,26 @@ def get_transactions(auth, api_url, account_id):
 
 class CryptoCurrency:
     def __init__(self, currency_data):
-        self._name = currency_data["balance"]["currency"]
-        self._balance = float(currency_data["balance"]["amount"])
+        self.name = currency_data["balance"]["currency"]
+        self.balance = float(currency_data["balance"]["amount"])
         self.code = currency_data["currency"]["code"]
         self.account_id = currency_data["id"]
+        self.sell_price = None
 
     def calculate_price(self, rate):
-        self.price = self._balance*rate
-        return self.price
+        self.sell_price = self.balance*rate
+        return self.sell_price
 
-    def display_coin(self):
-        print(f"Currency: {self.code} has a Balance: {self._balance}. Sell Price: {round(self.price, 2)}")
+    def calculate_return(self, investment):
+        self.roi =round(100*(self.sell_price-investment)/(investment), 2)
+        return self.roi
+
+    def __str__(self):
+        out = f"{self.name} ({self.code}) coin: \n"
+        out += f"\t - Balance: {self.balance} \n"
+        out += f"\t - Sell Price: {round(self.sell_price, 2)} \n"
+        out += f"\t - ROI: {self.roi} % \n"
+        return out
 
 class Wallet:
     def __init__(self, api_key, api_secret):
@@ -50,7 +59,7 @@ class Wallet:
 
         for currency in resp["data"]:
             coin = CryptoCurrency(currency_data=currency)
-            if coin._balance > 0:
+            if coin.balance > 0:
                 self.my_coins.append(coin)
         print("Wallet data has been loaded")
 
@@ -74,15 +83,14 @@ class Wallet:
             coin_purchases = self.load_coin_transactions(coin)
             investment = sum(coin_purchases)
 
-            roi = round(100*(sell_price-investment)/(investment), 2)
-            coin.display_coin()
-            print(f"             ROI: {roi} %")
+            roi = coin.calculate_return(investment)
+            print(coin)
 
             sells += sell_price
             purchases += investment
 
         overall_roi = round(100*(sells-purchases)/(purchases), 2)
-        print(f"------ Overall Portfolio Return {overall_roi}")
+        print(f"------ Overall Portfolio Return {overall_roi} %")
             
 
         

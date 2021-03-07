@@ -29,8 +29,11 @@ class CryptoCurrency:
         self.account_id = currency_data["id"]
 
     def calculate_price(self, rate):
-        price = self._balance*rate
-        return price
+        self.price = self._balance*rate
+        return self.price
+
+    def display_coin(self):
+        print(f"Currency: {self.code} has a Balance: {self._balance}. Sell Price: {round(self.price, 2)}")
 
 class Wallet:
     def __init__(self, api_key, api_secret):
@@ -72,7 +75,8 @@ class Wallet:
             investment = sum(coin_purchases)
 
             roi = round(100*(sell_price-investment)/(investment), 2)
-            print(f"Currency: {coin.code} has a Balance: {coin._balance}. The Sell Price: {round(sell_price, 2)} {money_denomination}, ROI: {roi} %")
+            coin.display_coin()
+            print(f"             ROI: {roi} %")
 
             sells += sell_price
             purchases += investment
@@ -87,32 +91,7 @@ if __name__ == "__main__":
 
     my_wallet = Wallet(API_KEY, API_SECRET)
     my_wallet.calculate_return()
-    # api_url = "https://api.coinbase.com/v2/"
-    # wallet = CoinbaseWalletAuth(API_KEY, API_SECRET)
-    # money = "USD"
 
-    # r = requests.get(api_url+"accounts", auth=wallet)
-    # resp = r.json()
-  
-    # my_wallets = []
-    # for currency in resp["data"]:
-    #     balance = float(currency["balance"]["amount"])
-    #     name = currency["balance"]["currency"]
-    #     if balance > 0:
-    #         my_wallets.append(currency)
-    # for curr in my_wallets:
-    #     balance = float(curr["balance"]["amount"])
-    #     code = curr["currency"]["code"]
-    #     rate = get_sell_price(wallet, api_url, currency=code, money=money)
-    #     price = balance*rate
-    #     account_id = curr["id"]
-        
-    #     transactions = get_transactions(wallet, api_url, account_id)
-        
-    #     original_investment = sum([float(t["native_amount"]["amount"]) for t in transactions])
-    #     roi = round(100*(price-original_investment)/(original_investment), 2)
-
-    #     print(f"Currency: {code}, Balance: {balance}, Sell Price: {price} USD, ROI: {roi} %")
         
 
 
